@@ -1,15 +1,20 @@
 from jsonchain import load_json, dump_json, extract_keys
+import pathlib
+
+here = pathlib.Path.cwd()
+if here.name != "tests" and here.name == "jsonchain":
+    here = here / "tests"
 
 
 def test_load_json():
-    a_dict = load_json("a.json")
+    a_dict = load_json(here / "a.json")
     assert a_dict['aa'] == 1
     assert a_dict['ab'] == 2
     assert a_dict['bc'] == 3
 
 
 def test_extract_keys():
-    a_dict = load_json("a.json")
+    a_dict = load_json(here / "a.json")
     loks = extract_keys(a_dict, key_name="group")
     assert loks == [
         {"group": "aa"},
