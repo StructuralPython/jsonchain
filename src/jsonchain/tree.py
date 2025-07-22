@@ -8,10 +8,10 @@ def compare_tree_values(
     tree_b: dict | list,
     levels_a: list[Hashable | None],
     levels_b: list[Hashable | None],
-    leaf_a: Union[Hashable, list[Hashable]],
-    leaf_b: Union[Hashable, list[Hashable]],
-    compare_func: Union[str, callable],
-    compared_key: Optional[Hashable]= None,
+    leaf_a: Hashable,
+    leaf_b: Hashable,
+    compare_func: Union[str, callable, None],
+    comparison_key: Optional[Hashable]= None,
     *args,
     **kwargs,
 ) -> dict:
@@ -25,14 +25,20 @@ def compare_tree_values(
     'levels_b': The levels to iterate through in order to access the leaf keys in
         'leaves_b'. If a level is listed is None, then all keys at that level will
         be iterated over.
-    'leaves_a': a list of leaf keys to compare. Must be same length as 'leaves_b'.
-    'leaves_b': a list of leaf keys to compare. Must be same length as 'leaves_a'.
+    'leaf_a': The leaf in the tree_a to compare to the leaf in tree_b
+    'leaf_b': The leaf in the tree_b to compare to the leaf in tree_a
     'compare_func': Either one of 
-        {'div', 'sub', 'add', 'mult', 'ge', 'le', 'lt', 'gt', 'eq', 'ne'} or a 
-        user-supplied callable whos call signature takes the values of the individul
-        elements of 'leaves_a' as the first param, the individual elements of 'leaves_b'
+        {'div', 'sub', 'add', 'mult', 'ge', 'le', 'lt', 'gt', 'eq', 'ne'}, None, or a 
+        user-supplied callable whose call signature takes the values of the individual
+        elements of 'leaf_a' as the first param, the individual elements of 'leaf_b'
         as the second param. Optionally, args and kwargs can be passed and they
         will be passed on to the callable.
+        If compare_func is None, then no function is called and the values for
+        comparison are both entered into the returned dictionary but without
+        a special comparison operation performed. If compare_func is None,
+        'comparison_key' is ignored.
+    'comparison_key': If provided, will serve as the key for the comparison value.
+        If None, then the name of the comparison operator will used instead.
     """
     ops = {
         "div": operator.truediv,
@@ -57,14 +63,15 @@ def compare_tree_values(
     for trunk in branch_a.keys():
         value_a = branch_a[trunk]
         value_b = branch_b[trunk]
-        comparison_operator = ops.get(compare_func, compare_func)
-        compared_value = comparison_operator(value_a, value_b)
         env_acc.setdefault(trunk, {})
         env_acc[trunk].setdefault(leaf_a, value_a)
         env_acc[trunk].setdefault(leaf_b, value_b)
-        if compared_key is None:
-            compared_key = str(compare_func)
-        env_acc[trunk].setdefault(compared_key, compared_value)
+        comparison_operator = ops.get(compare_func, compare_func)
+        if comparison_operator is not None:
+            compared_value = comparison_operator(value_a, value_b)
+            if comparison_key is None:
+                comparison_key = comparison_operator.__name__
+            env_acc[trunk].setdefault(comparison_key, compared_value)
     return env_acc
 
 
