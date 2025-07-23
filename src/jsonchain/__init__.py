@@ -13,4 +13,4 @@ from .tree import (
     trim_branches,
     retrieve_leaves
 )
-import tables
+from . import tables
