@@ -12,6 +12,7 @@ def compare_tree_values(
     leaf_b: Hashable,
     compare_func: Union[str, callable, None],
     comparison_key: Optional[Hashable]= None,
+    comparison_label: Optional[Hashable] = None,
     *args,
     **kwargs,
 ) -> dict:
@@ -39,6 +40,10 @@ def compare_tree_values(
         'comparison_key' is ignored.
     'comparison_key': If provided, will serve as the key for the comparison value.
         If None, then the name of the comparison operator will used instead.
+    'comparison_label': If provided, will add an extra nested layer to the resulting
+        dictionary keyed with 'comparison_label'. This is useful if you are going
+        to be merging comparison trees and you wish to uniquely identify each
+        comparison.
     """
     ops = {
         "div": operator.truediv,
@@ -59,19 +64,24 @@ def compare_tree_values(
 
     branch_a = trim_branches(subtree_a, levels_a)
     branch_b = trim_branches(subtree_b, levels_b)
-
     for trunk in branch_a.keys():
         value_a = branch_a[trunk]
+        if trunk not in branch_b: continue
         value_b = branch_b[trunk]
         env_acc.setdefault(trunk, {})
-        env_acc[trunk].setdefault(leaf_a, value_a)
-        env_acc[trunk].setdefault(leaf_b, value_b)
+        if comparison_label is not None:
+            env_acc[trunk].setdefault(comparison_label, {})
+            compare_acc = env_acc[trunk][comparison_label]
+        else:
+            compare_acc = env_acc[trunk]
+        compare_acc.setdefault(leaf_a, value_a)
+        compare_acc.setdefault(leaf_b, value_b)
         comparison_operator = ops.get(compare_func, compare_func)
         if comparison_operator is not None:
             compared_value = comparison_operator(value_a, value_b)
             if comparison_key is None:
                 comparison_key = comparison_operator.__name__
-            env_acc[trunk].setdefault(comparison_key, compared_value)
+            compare_acc.setdefault(comparison_key, compared_value)
     return env_acc
 
 
@@ -185,7 +195,7 @@ def filter_keys(
     tree: dict,
     include_keys: Optional[list[str]] = None,
     exclude_keys: Optional[list[str]] = None,
-    include_keys_startswith: Optional[str] = None
+    include_keys_startswith: Optional[str | list[str]] = None
     ) -> dict:
     """
     Returns a copy of 'tree' that has had some of its top-level
@@ -197,7 +207,9 @@ def filter_keys(
     - exclude_keys: Provide a list of keys to exclude
     - include_keys_startswith: Provide a substring that 
         occurs at the start of the keys. All matches will
-        be included.
+        be included. If a list of substrings are provided,
+        then all substrings will be checked for a match
+        and included.
 
     These filters are additive and are applied in the following
     order:
@@ -208,14 +220,18 @@ def filter_keys(
     """
     include_keys = include_keys or []
     exclude_keys = exclude_keys or []
+    if include_keys_startswith is not None and isinstance(include_keys_startswith, str):
+        include_keys_startswith = [include_keys_startswith]
     filtered_keys = []
     for key in tree.keys():
         if key in exclude_keys: continue
-        if key.startswith(include_keys_startswith):
-            filtered_keys.append(key)
+        if include_keys_startswith is not None:
+            for include_startswith in include_keys_startswith:
+                if key.startswith(include_startswith):
+                    filtered_keys.append(key)
         elif key in include_keys:
             filtered_keys.append(key)
-    filtered_tree = {k: v for k, v in filtered_tree.items() if k in filtered_keys}
+    filtered_tree = {k: v for k, v in tree.items() if k in filtered_keys}
     return filtered_tree
         
 
