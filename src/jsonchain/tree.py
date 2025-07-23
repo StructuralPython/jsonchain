@@ -180,7 +180,44 @@ def extract_keys(
 
     return acc
 
-    
+
+def filter_keys(
+    tree: dict,
+    include_keys: Optional[list[str]] = None,
+    exclude_keys: Optional[list[str]] = None,
+    include_keys_startswith: Optional[str] = None
+    ) -> dict:
+    """
+    Returns a copy of 'tree' that has had some of its top-level
+    keys removed based on the applied filters.
+
+    Filters:
+
+    - include_keys: Provide a list of keys to include
+    - exclude_keys: Provide a list of keys to exclude
+    - include_keys_startswith: Provide a substring that 
+        occurs at the start of the keys. All matches will
+        be included.
+
+    These filters are additive and are applied in the following
+    order:
+
+    include_keys
+    include_keys_startswith
+    exclude_keys
+    """
+    include_keys = include_keys or []
+    exclude_keys = exclude_keys or []
+    filtered_keys = []
+    for key in tree.keys():
+        if key in exclude_keys: continue
+        if key.startswith(include_keys_startswith):
+            filtered_keys.append(key)
+        elif key in include_keys:
+            filtered_keys.append(key)
+    filtered_tree = {k: v for k, v in filtered_tree.items() if k in filtered_keys}
+    return filtered_tree
+        
 
 def merge_trees(trees: list[dict[str, dict]]) -> dict[str, dict]:
     """
