@@ -2,7 +2,7 @@
 A small package to aid in the use of the chaining techniques taught by Structural Python
 """
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 
 from .io import (load_json, dump_json)
