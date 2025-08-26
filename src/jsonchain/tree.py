@@ -106,7 +106,8 @@ def retrieve_leaves(
     leaf: list[Hashable] | Hashable | None,
 ) -> dict:
     """
-    Envelopes the tree at the leaf node with 'agg_func'.
+    Retrieves the leaf nodes at levels -> leaf and puts the leaf nodes
+    under the top-level keys.
     """
     env_acc = {}
     key_error_msg = (
@@ -195,6 +196,7 @@ def filter_keys(
     tree: dict,
     include_keys: Optional[list[str]] = None,
     exclude_keys: Optional[list[str]] = None,
+    include_startswith: Optional[str | list[str]] = None,
     include_keys_startswith: Optional[str | list[str]] = None
     ) -> dict:
     """

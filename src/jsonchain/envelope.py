@@ -3,10 +3,17 @@ from typing import Hashable
 
 PYMAX = max
 PYMIN = min
+PYABS = abs
 
-def envelope_tree(tree: dict | list, levels: list[Hashable | None], leaf: Hashable | None, agg_func: callable, with_trace: bool = True) -> dict:
+def envelope_tree(
+        tree: dict | list, 
+        levels: list[Hashable | None], 
+        leaf: Hashable | None, 
+        agg_func: callable, 
+        with_trace: bool = True
+    ) -> dict:
     """
-    Envelopes the tree at the leaf node with 'agg_func'.
+    Returns a new dict tree
     """
     env_acc = {}
     # If we are at the last branch...
@@ -14,9 +21,9 @@ def envelope_tree(tree: dict | list, levels: list[Hashable | None], leaf: Hashab
         if isinstance(tree, list):
             tree = {idx: leaf for idx, leaf in enumerate(tree)}
         leaf_acc = {}
-        for k, leaves in tree.items():
-            if leaf is not None:
-                leaf_acc.update({k: leaves[leaf]})
+        for leaf_key, leaf_value in tree.items():
+            if leaf is not None and leaf_key == leaf:
+                leaf_acc.update({leaf_key: leaf_value})
             else:
                 leaf_acc = tree
         # ...create a dict of the enveloped value and the key
@@ -86,3 +93,12 @@ def min(x: list[float | int | None]) -> float | int | None:
     If all values in 'x' are None, then None is returned.
     """
     return PYMIN([y for y in x if y is not None])
+
+
+def abs(x: float | int | None) -> float | int | None:
+    """
+    Performs abs but passes None through if x is None.
+    """
+    if x is None:
+        return x
+    return abs(x)
