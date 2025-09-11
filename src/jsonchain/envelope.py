@@ -19,22 +19,30 @@ def envelope_tree(
     # If we are at the last branch...
     if not levels:
         if isinstance(tree, list):
-            tree = {idx: leaf for idx, leaf in enumerate(tree)}
-        leaf_acc = {}
-        for leaf_key, leaf_value in tree.items():
-            if leaf is not None and leaf_key == leaf:
-                leaf_acc.update({leaf_key: leaf_value})
-            else:
-                leaf_acc = tree
+            orig_tree = tree
+            tree = {idx: value for idx, value in enumerate(tree)}
+        elif isinstance(tree, dict):
+            orig_tree = tree
+            tree = {idx: branch[leaf] for idx, branch in enumerate(tree.values())}
+            trace_tree = {idx: key for idx, key in enumerate(orig_tree.keys())}
+
+        # leaf_acc = {}
+        # for leaf_key, leaf_value in tree.items():
+        #     if leaf is not None and leaf_key == leaf:
+        #         leaf_acc.update({leaf_key: leaf_value})
+        #     else:
+        #         leaf_acc = tree
+
         # ...create a dict of the enveloped value and the key
         # that it belongs to and return it.
-        env_values = list(leaf_acc.values())
+        # env_values = list(leaf_acc.values())
+        env_values = list(tree.values())
         env_value = agg_func(env_values)
-        env_keys = list(leaf_acc.keys())
+        # env_keys = list(leaf_acc.keys())
         try:
-            env_key = env_keys[env_values.index(env_value)]
+            env_key = trace_tree[env_values.index(env_value)]
         except ValueError: # The value was transformed, likely due to abs()
-            env_key = env_keys[env_values.index(-1 * env_value)]
+            env_key = trace_tree[env_values.index(-1 * env_value)]
         env_acc.update({"key": env_key, "value": env_value})
         if with_trace:
             return env_acc
