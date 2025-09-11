@@ -101,4 +101,4 @@ def abs(x: float | int | None) -> float | int | None:
     """
     if x is None:
         return x
-    return abs(x)
+    return PYABS(x)
