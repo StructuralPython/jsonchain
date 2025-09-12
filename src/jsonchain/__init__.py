@@ -22,3 +22,5 @@ from .tree import (
     merge_trees
 )
 from . import tables
+
+from .tables import flatten_tree

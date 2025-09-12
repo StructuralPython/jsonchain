@@ -151,4 +151,38 @@ def create_tree_table(
             tree_leaves.update({header_row[idx]: row[idx]})
         tree_branch.update(tree_leaves)
     return tree_acc 
-    
+
+
+def flatten_tree(
+        tree: dict, 
+        level_labels: list[str | float | int], 
+        _current_level=0, 
+        _current_dict={}
+    ) -> list[dict]:
+    """
+    Returns a flattened list of dictionaries from the list.
+
+    tree: The nested dictionary to flatten. Must have the same number of
+        depth of across all branches.
+    level_labels: A list of strings to use as keys for each level.
+    current_level: The current depth of the recursion.
+    current_dict: The dictionary being built for the current path.
+    """
+    flattened_list = []
+
+    # Iterate over the key-value pairs of the current dictionary level
+    for key, value in tree.items():
+        new_dict = _current_dict.copy()
+        new_dict[level_labels[_current_level]] = key
+
+        # If the value is a dictionary and there are more levels to go, recurse
+        if isinstance(value, dict) and _current_level + 1 < len(level_labels):
+            flattened_list.extend(
+                flatten_tree(value, level_labels, _current_level + 1, new_dict)
+            )
+        else:
+            # Otherwise, we've reached a leaf node, so we update and append
+            new_dict.update(value)
+            flattened_list.append(new_dict)
+
+    return flattened_list
