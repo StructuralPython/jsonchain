@@ -160,9 +160,10 @@ def flatten_tree(
         _current_dict={}
     ) -> list[dict]:
     """
-    Returns a flattened list of dictionaries from the list
+    Returns a flattened list of dictionaries from the list.
 
-    tree: The nested dictionary to flatten.
+    tree: The nested dictionary to flatten. Must have the same number of
+        depth of across all branches.
     level_labels: A list of strings to use as keys for each level.
     current_level: The current depth of the recursion.
     current_dict: The dictionary being built for the current path.

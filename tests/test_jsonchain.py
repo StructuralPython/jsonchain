@@ -83,5 +83,4 @@ def test_flatten_tree():
         {"member": "a", "force": "C", "case": 2, "opta": 310, "optb": 320, "optc": 330},
     ]
     flattened = flatten_tree(tree, level_labels=['member', 'force', 'case'])
-    print(f"{flattened=}")
     assert flattened == flat
