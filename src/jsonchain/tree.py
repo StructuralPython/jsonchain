@@ -1,4 +1,4 @@
-from copy import copy
+from copy import deepcopy
 from typing import Hashable, Union, Optional, Any
 import operator
 import deepmerge
@@ -249,6 +249,7 @@ def merge_trees(trees: list[dict[str, dict]]) -> dict[str, dict]:
     within each branch, no matter how deep the branches go.
     """
     acc = {}
-    for result_tree in trees:
+    trees_copy = deepcopy(trees)
+    for result_tree in trees_copy:
         acc = deepmerge.always_merger.merge(acc, result_tree)
     return acc
