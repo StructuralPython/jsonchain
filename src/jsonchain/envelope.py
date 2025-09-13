@@ -23,7 +23,14 @@ def envelope_tree(
             tree = {idx: value for idx, value in enumerate(tree)}
         elif isinstance(tree, dict):
             orig_tree = tree
-            tree = {idx: branch[leaf] for idx, branch in enumerate(tree.values())}
+            tree = {}
+
+            for idx, branch in enumerate(orig_tree.values()):
+                if isinstance(branch, dict):
+                    tree.update({idx: branch[leaf]})
+                else:
+                    tree.update({idx: branch})
+            # tree = {idx: branch[leaf] for idx, branch in enumerate(tree.values())}
             trace_tree = {idx: key for idx, key in enumerate(orig_tree.keys())}
 
         # leaf_acc = {}
